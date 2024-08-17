@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+requests
+ffmpeg-python
+pydub
+python-dotenv
