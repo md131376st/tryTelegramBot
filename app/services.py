@@ -49,6 +49,7 @@ class TelegramService:
 
     def send_text_to_morseverse(self, user_id, question):
         language = self.get_user_language(user_id)
+        print(self.COMPANY_ID)
         payload = {
             "companyId": self.COMPANY_ID,
             "userId": user_id,
