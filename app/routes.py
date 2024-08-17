@@ -1,3 +1,5 @@
+import hashlib
+
 from fastapi import FastAPI, Request
 from .services import TelegramService
 
@@ -5,13 +7,29 @@ app = FastAPI()
 telegram_service = TelegramService()
 
 
+def telegram_user_id_to_object_id(user_id):
+    # Convert the Telegram user_id (integer) to a string
+    user_id_str = str(user_id)
+
+    # Use hashlib to create a consistent 24-character hex string
+    hash_object = hashlib.sha1(user_id_str.encode())  # SHA-1 creates a 40-character hex string
+    hex_dig = hash_object.hexdigest()
+
+    # Truncate or pad the string to ensure it's 24 characters long
+    hex_dig = hex_dig[:24]  # Truncate to 24 characters
+
+    # Convert the 24-character hex string to an ObjectId
+
+
+    return hex_dig
 @app.post("/webhook")
 async def telegram_webhook(request: Request):
     data = await request.json()
 
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
-        user_id = str(data["message"]["from"]["id"])
+        user_id = data["message"]["from"]["id"]
+        user_id = telegram_user_id_to_object_id(user_id)
 
         # Present language options to the user
         if data["message"].get("text", "").lower() == "start":
