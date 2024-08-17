@@ -55,8 +55,21 @@ class TelegramService:
             "lang": language,
             "question": question
         }
-        response = requests.post(self.MORSEVERSE_TEXT_API_URL, json=payload)
-        return response.json()
+        try:
+            response = requests.post(self.MORSEVERSE_TEXT_API_URL, json=payload)
+            if response.status_code == 200:
+                try:
+                    return response.json()  # Attempt to parse the JSON response
+                except ValueError:
+                    # Handle cases where the response is not JSON
+                    return {"error": "Invalid JSON response from Morseverse API"}
+            else:
+                # Handle HTTP errors
+                return {"error": f"HTTP error {response.status_code}: {response.text}"}
+        except requests.exceptions.RequestException as e:
+        # Handle any request-related errors (e.g., network issues)
+            return {"error": f"Request failed: {str(e)}"}
+
 
     def send_voice_to_morseverse(self, user_id, wav_file_path):
         language = self.get_user_language(user_id)
