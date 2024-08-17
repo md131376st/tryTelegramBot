@@ -60,7 +60,7 @@ class TelegramService:
             response = requests.post(self.MORSEVERSE_TEXT_API_URL, json=payload)
             if response.status_code == 200:
                 try:
-                    return response.json()  # Attempt to parse the JSON response
+                    return response # Attempt to parse the JSON response
                 except ValueError:
                     # Handle cases where the response is not JSON
                     return {"error": "Invalid JSON response from Morseverse API"}
