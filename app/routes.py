@@ -1,6 +1,8 @@
 import hashlib
 
 from fastapi import FastAPI, Request
+from starlette.responses import JSONResponse
+
 from .services import TelegramService
 
 app = FastAPI()
@@ -71,3 +73,10 @@ async def telegram_webhook(request: Request):
             telegram_service.send_message(chat_id, f"Language set to {language_code}.")
 
     return {"status": "success"}
+
+@app.get("/")
+def health_check():
+    """
+    A simple health check endpoint to verify if the server is running.
+    """
+    return JSONResponse(content={"status": "ok", "message": "Server is running smoothly."})
