@@ -68,9 +68,8 @@ class TelegramService:
                 # Handle HTTP errors
                 return {"error": f"HTTP error {response.status_code}: {response.text}"}
         except requests.exceptions.RequestException as e:
-        # Handle any request-related errors (e.g., network issues)
+            # Handle any request-related errors (e.g., network issues)
             return {"error": f"Request failed: {str(e)}"}
-
 
     def send_voice_to_morseverse(self, user_id, wav_file_path):
         language = self.get_user_language(user_id)

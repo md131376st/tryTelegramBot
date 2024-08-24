@@ -44,8 +44,8 @@ async def telegram_webhook(request: Request):
             morseverse_response = telegram_service.send_text_to_morseverse(user_id, question)
             print(morseverse_response)
             print(type(morseverse_response))
-            response_message = morseverse_response["answer"]
-            telegram_service.send_message(chat_id, response_message)
+            # response_message = morseverse_response["answer"]
+            telegram_service.send_message(chat_id, morseverse_response)
 
         # # Handle voice messages
         # elif "voice" in data["message"]:
