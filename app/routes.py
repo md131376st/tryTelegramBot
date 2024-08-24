@@ -35,7 +35,7 @@ async def telegram_webhook(request: Request):
         user_id = telegram_user_id_to_object_id(user_id)
 
         # Present language options to the user
-        if data["message"].get("text", "").lower() == "start":
+        if data["message"].get("text", "").lower() == "start" or  data["message"].get("text", "").lower() == "/start":
             telegram_service.send_language_options(chat_id)
 
         # Handle text messages
