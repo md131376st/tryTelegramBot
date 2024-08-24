@@ -10,7 +10,6 @@ class TelegramService:
         self.MORSEVERSE_TEXT_API_URL = config.MORSEVERSE_TEXT_API_URL
         self.MORSEVERSE_VOICE_API_URL = config.MORSEVERSE_VOICE_API_URL
         self.COMPANY_ID = config.COMPANY_ID
-        print(self.COMPANY_ID)
         self.user_languages = {}  # Store user language preferences in memory
 
     def set_user_language(self, user_id, language_code):
