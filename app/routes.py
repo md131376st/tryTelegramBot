@@ -45,7 +45,8 @@ async def telegram_webhook(request: Request):
             print(morseverse_response)
             # print(type(morseverse_response))
 
-            response_message = morseverse_response.get("answer","Server error Please Try later")
+            response_message = morseverse_response.get("answer","Server error Please Try later")+ ''.join(morseverse_response.get("links",[]))
+
             telegram_service.send_message(chat_id, response_message)
 
         # # Handle voice messages
