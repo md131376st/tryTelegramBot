@@ -39,10 +39,15 @@ async def telegram_webhook(request: Request):
         if data["message"].get("text", "").lower() == "start" or data["message"].get("text", "").lower() == "/start":
             telegram_service.send_language_options(chat_id)
 
+
         # Handle text messages
         elif "text" in data["message"]:
             question = data["message"]["text"]
             morseverse_response = telegram_service.send_text_to_morseverse(user_id, question)
+            if morseverse_response ==None:
+                telegram_service.send_message(chat_id, "Server Error please try again ")
+                return {"status": "Error (null server answer)"}
+
             print(morseverse_response)
             # print(type(morseverse_response))
 
