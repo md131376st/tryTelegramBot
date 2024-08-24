@@ -23,8 +23,9 @@ def telegram_user_id_to_object_id(user_id):
 
     # Convert the 24-character hex string to an ObjectId
 
-
     return hex_dig
+
+
 @app.post("/webhook")
 async def telegram_webhook(request: Request):
     data = await request.json()
@@ -35,7 +36,7 @@ async def telegram_webhook(request: Request):
         user_id = telegram_user_id_to_object_id(user_id)
 
         # Present language options to the user
-        if data["message"].get("text", "").lower() == "start" or  data["message"].get("text", "").lower() == "/start":
+        if data["message"].get("text", "").lower() == "start" or data["message"].get("text", "").lower() == "/start":
             telegram_service.send_language_options(chat_id)
 
         # Handle text messages
@@ -45,8 +46,10 @@ async def telegram_webhook(request: Request):
             print(morseverse_response)
             # print(type(morseverse_response))
 
-            response_message = morseverse_response.get("answer","Server error Please Try later")+ '\n'.join(morseverse_response.get("links",[" "]))
+            response_message = morseverse_response.get("answer", "Server error Please Try later")
+            links = '\n'.join(morseverse_response.get("links", []))
 
+            response_message += '\n' + links
             telegram_service.send_message(chat_id, response_message)
 
         # # Handle voice messages
@@ -76,6 +79,7 @@ async def telegram_webhook(request: Request):
             telegram_service.send_message(chat_id, f"Language set to {language_code}.")
 
     return {"status": "success"}
+
 
 @app.get("/")
 def health_check():
