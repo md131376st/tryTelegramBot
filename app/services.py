@@ -96,6 +96,7 @@ class TelegramService:
 
     def send_language_options(self, chat_id):
         """Send language options to the user."""
+        print("I am setting language")
         url = self.TELEGRAM_API_URL + "sendMessage"
         payload = {
             "chat_id": chat_id,
