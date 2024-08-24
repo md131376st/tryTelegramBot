@@ -8,7 +8,7 @@ from .services import TelegramService
 
 app = FastAPI()
 telegram_service = TelegramService()
-app.mount("/.well-known", StaticFiles(directory="/var/www/morseverse/.well-known"), name="static")
+
 
 def telegram_user_id_to_object_id(user_id):
     # Convert the Telegram user_id (integer) to a string
