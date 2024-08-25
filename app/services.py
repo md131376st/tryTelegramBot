@@ -84,6 +84,7 @@ class TelegramService:
         }
 
         response = requests.post(self.MORSEVERSE_VOICE_API_URL, json=payload)
+        print(response)
         return response.json()
 
     def send_message(self, chat_id, text):

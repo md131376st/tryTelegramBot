@@ -28,67 +28,85 @@ def telegram_user_id_to_object_id(user_id):
 
 @app.post("/webhook")
 async def telegram_webhook(request: Request):
-    data = await request.json()
+    try:
+        data = await request.json()
 
-    if "message" in data:
-        chat_id = data["message"]["chat"]["id"]
-        user_id = data["message"]["from"]["id"]
-        user_id = telegram_user_id_to_object_id(user_id)
+        if "message" in data:
+            chat_id = data["message"]["chat"]["id"]
+            user_id = data["message"]["from"]["id"]
+            user_id = telegram_user_id_to_object_id(user_id)
 
-        # Present language options to the user
-        if data["message"].get("text", "").lower() == "start" or data["message"].get("text", "").lower() == "/start":
-            telegram_service.send_language_options(chat_id)
+            # Present language options to the user
+            if data["message"].get("text", "").lower() == "start" or data["message"].get("text",
+                                                                                         "").lower() == "/start":
+                telegram_service.send_language_options(chat_id)
 
+            # Handle text messages
+            elif "text" in data["message"]:
+                question = data["message"]["text"]
+                morseverse_response = telegram_service.send_text_to_morseverse(user_id, question)
+                if morseverse_response is None:
+                    telegram_service.send_message(chat_id, "Server Error, please try again.")
+                    return {"status": "Error (null server answer)"}
 
-        # Handle text messages
-        elif "text" in data["message"]:
-            question = data["message"]["text"]
-            morseverse_response = telegram_service.send_text_to_morseverse(user_id, question)
-            if morseverse_response ==None:
-                telegram_service.send_message(chat_id, "Server Error please try again ")
-                return {"status": "Error (null server answer)"}
+                response_message = morseverse_response.get("answer", "Server error, please try later.")
+                links = morseverse_response.get("links", [])
+                if links:
+                    merge_links = '\n'.join(links)
+                    response_message += '\n' + merge_links
+                telegram_service.send_message(chat_id, response_message)
 
-            print(morseverse_response)
-            # print(type(morseverse_response))
+            # Handle voice messages
+            elif "voice" in data["message"]:
+                voice_file_id = data["message"]["voice"]["file_id"]
 
-            response_message = morseverse_response.get("answer", "Server error Please Try later")
-            links = morseverse_response.get("links", [])
-            if links:
-                merge_links = '\n'.join(links)
-                response_message += '\n' + merge_links
-            telegram_service.send_message(chat_id, response_message)
+                # Download the voice message
+                ogg_file = telegram_service.download_voice_file(voice_file_id)
 
-        # # Handle voice messages
-        elif "voice" in data["message"]:
-            voice_file_id = data["message"]["voice"]["file_id"]
+                # Convert the OGG file to WAV
+                wav_file = telegram_service.convert_to_wav(ogg_file)
 
-            # Download the voice message
-            ogg_file = telegram_service.download_voice_file(voice_file_id)
+                # Send the WAV file data to Morseverse API
+                morseverse_response = telegram_service.send_voice_to_morseverse(user_id, wav_file)
+                if morseverse_response is None:
+                    telegram_service.send_message(chat_id, "Server Error, please try again.")
+                    return {"status": "Error (null server answer)"}
 
-            # Convert the OGG file to WAV
-            wav_file = telegram_service.convert_to_wav(ogg_file)
+                response_message = morseverse_response.get("answer", "Please try again.")
+                links = morseverse_response.get("links", [])
+                if links:
+                    merge_links = '\n'.join(links)
+                    response_message += '\n' + merge_links
+                telegram_service.send_message(chat_id, response_message)
 
-            # Send the WAV file data to Morseverse API
-            morseverse_response = telegram_service.send_voice_to_morseverse(user_id, wav_file)
-            response_message = morseverse_response.get("answer", "Please Try again")
-            links = morseverse_response.get("links", [])
-            if links:
-                merge_links = '\n'.join(links)
-                response_message += '\n' + merge_links
-            telegram_service.send_message(chat_id, response_message)
+        # Handle language selection callback
+        elif "callback_query" in data:
+            callback_data = data["callback_query"]["data"]
+            chat_id = data["callback_query"]["message"]["chat"]["id"]
+            user_id = str(data["callback_query"]["from"]["id"])
 
-    # Handle language selection callback
-    elif "callback_query" in data:
-        callback_data = data["callback_query"]["data"]
-        chat_id = data["callback_query"]["message"]["chat"]["id"]
-        user_id = str(data["callback_query"]["from"]["id"])
+            if callback_data.startswith("set_lang_"):
+                language_code = callback_data.split("_")[-1]
+                telegram_service.set_user_language(user_id, language_code)
+                telegram_service.send_message(chat_id, f"Language set to {language_code}.")
 
-        if callback_data.startswith("set_lang_"):
-            language_code = callback_data.split("_")[-1]
-            telegram_service.set_user_language(user_id, language_code)
-            telegram_service.send_message(chat_id, f"Language set to {language_code}.")
+        return {"status": "success"}
 
-    return {"status": "success"}
+    except Exception as e:
+        # Log the error (optional)
+        print(f"An error occurred: {e}")
+
+        # Send an error message to the user
+        if "message" in data:
+            chat_id = data["message"]["chat"]["id"]
+            telegram_service.send_message(chat_id,
+                                          "An error occurred while processing your request. Please try again later.")
+        elif "callback_query" in data:
+            chat_id = data["callback_query"]["message"]["chat"]["id"]
+            telegram_service.send_message(chat_id,
+                                          "An error occurred while processing your request. Please try again later.")
+
+        return {"status": "error", "message": str(e)}
 
 
 @app.get("/")
