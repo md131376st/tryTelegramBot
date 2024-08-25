@@ -2,7 +2,7 @@ import requests
 import os
 from pydub import AudioSegment
 from .config import config
-
+import binascii
 
 class TelegramService:
     def __init__(self):
@@ -75,12 +75,12 @@ class TelegramService:
         language = self.get_user_language(user_id)
         with open(wav_file_path, 'rb') as wav_file:
             wav_data = wav_file.read()
-
+        wav_data_hex = binascii.hexlify(wav_data).decode('utf-8')
         payload = {
             "companyId": self.COMPANY_ID,
             "userId": user_id,
             "lang": language,
-            "wavData": wav_data
+            "wavData": wav_data_hex
         }
 
         response = requests.post(self.MORSEVERSE_VOICE_API_URL, json=payload)
