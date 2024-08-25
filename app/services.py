@@ -75,12 +75,13 @@ class TelegramService:
         language = self.get_user_language(user_id)
         with open(wav_file_path, 'rb') as wav_file:
             wav_data = wav_file.read()
-        wav_data_hex = binascii.hexlify(wav_data).decode('utf-8')
+        import base64
+        wav_data_base64 = base64.b64encode(wav_data).decode('utf-8')
         payload = {
             "companyId": self.COMPANY_ID,
             "userId": user_id,
             "lang": language,
-            "wavData": wav_data_hex
+            "wavData": wav_data_base64
         }
 
         response = requests.post(self.MORSEVERSE_VOICE_API_URL, json=payload)
