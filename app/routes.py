@@ -59,19 +59,23 @@ async def telegram_webhook(request: Request):
             telegram_service.send_message(chat_id, response_message)
 
         # # Handle voice messages
-        # elif "voice" in data["message"]:
-        #     voice_file_id = data["message"]["voice"]["file_id"]
-        #
-        #     # Download the voice message
-        #     ogg_file = telegram_service.download_voice_file(voice_file_id)
-        #
-        #     # Convert the OGG file to WAV
-        #     wav_file = telegram_service.convert_to_wav(ogg_file)
-        #
-        #     # Send the WAV file data to Morseverse API
-        #     morseverse_response = telegram_service.send_voice_to_morseverse(user_id, wav_file)
-        #     response_message = morseverse_response.get("response", "Please Try again")
-        #     telegram_service.send_message(chat_id, response_message)
+        elif "voice" in data["message"]:
+            voice_file_id = data["message"]["voice"]["file_id"]
+
+            # Download the voice message
+            ogg_file = telegram_service.download_voice_file(voice_file_id)
+
+            # Convert the OGG file to WAV
+            wav_file = telegram_service.convert_to_wav(ogg_file)
+
+            # Send the WAV file data to Morseverse API
+            morseverse_response = telegram_service.send_voice_to_morseverse(user_id, wav_file)
+            response_message = morseverse_response.get("answer", "Please Try again")
+            links = morseverse_response.get("links", [])
+            if links:
+                merge_links = '\n'.join(links)
+                response_message += '\n' + merge_links
+            telegram_service.send_message(chat_id, response_message)
 
     # Handle language selection callback
     elif "callback_query" in data:
