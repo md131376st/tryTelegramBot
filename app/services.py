@@ -40,7 +40,7 @@ class TelegramService:
 
     def convert_to_wav(self, ogg_file_path):
         wav_file_path = ogg_file_path.replace('.oga', '.wav').replace('.ogg', '.wav')
-
+        print(ogg_file_path)
         # Using ffmpeg to convert OGG to WAV
         AudioSegment.from_file(ogg_file_path).export(wav_file_path, format='wav')
 
