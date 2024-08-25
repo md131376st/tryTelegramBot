@@ -78,8 +78,7 @@ async def telegram_webhook(request: Request):
                     merge_links = '\n'.join(links)
                     response_message += '\n' + merge_links
                 telegram_service.send_message(chat_id, response_message)
-                voice_answer_text = morseverse_response.get("voice_answer", "Please try again.")
-                telegram_service.send_voice_answer_to_user(chat_id, response_message)
+                telegram_service.send_voice_answer_to_user(chat_id, morseverse_response)
 
 
         # Handle language selection callback
