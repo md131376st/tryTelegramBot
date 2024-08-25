@@ -2,7 +2,6 @@ import hashlib
 
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
-from starlette.staticfiles import StaticFiles
 
 from .services import TelegramService
 
@@ -55,6 +54,7 @@ async def telegram_webhook(request: Request):
                     merge_links = '\n'.join(links)
                     response_message += '\n' + merge_links
                 telegram_service.send_message(chat_id, response_message)
+                telegram_service.send_voice_answer_to_user(chat_id, response_message)
 
             # Handle voice messages
             elif "voice" in data["message"]:
@@ -78,6 +78,8 @@ async def telegram_webhook(request: Request):
                     merge_links = '\n'.join(links)
                     response_message += '\n' + merge_links
                 telegram_service.send_message(chat_id, response_message)
+                voice_answer_text = morseverse_response.get("voice_answer", "Please try again.")
+
 
         # Handle language selection callback
         elif "callback_query" in data:

@@ -15,6 +15,7 @@ class Config:
     # Specific API paths
     MORSEVERSE_TEXT_API_PATH: str = "/textusermessage"
     MORSEVERSE_VOICE_API_PATH: str = "/usermessage"
+    MORSEVERSE_VOICE_AI: str = "https://morseverse.com/ai_agent/text_to_audio/"
 
     # Construct full URLs
     TELEGRAM_API_URL: str = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/"

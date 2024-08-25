@@ -1,3 +1,5 @@
+import subprocess
+
 import requests
 import os
 from pydub import AudioSegment
@@ -88,6 +90,47 @@ class TelegramService:
         print(response)
         return response.json()
 
+    def send_voice_answer_to_user(self, chat_id, morseverse_response):
+        # Prepare the text for the API request
+        voice_answer_text = morseverse_response.get("voice_answer", "Please try again.")
+
+        # Make a POST request to the text-to-audio API
+        response = requests.post(self.morseverse_api_url, json={"text": voice_answer_text})
+
+        if response.status_code == 200:
+            # Assume the API returns the WAV file directly in the response content
+            wav_data = response.content
+            wav_file_path = "response.wav"
+
+            # Save the response WAV file locally
+            with open(wav_file_path, 'wb') as f:
+                f.write(wav_data)
+
+            # Send the WAV file back to the user via Telegram
+            self.telegram_service.send_voice(chat_id, wav_file_path)
+
+            # Optionally, delete the temporary WAV file
+            os.remove(wav_file_path)
+
+    def convert_wav_to_ogg(self, wav_file_path, output_ogg_path):
+        # Use ffmpeg to convert the WAV file to OGG with OPUS encoding
+        subprocess.run(['ffmpeg', '-i', wav_file_path, '-c:a', 'libopus', output_ogg_path], check=True)
+
+    def send_voice_to_telegram(self, chat_id, token, ogg_file_path):
+        url = f"https://api.telegram.org/bot{token}/sendVoice"
+
+        with open(ogg_file_path, 'rb') as voice_file:
+            files = {
+                'voice': voice_file
+            }
+            data = {
+                'chat_id': chat_id
+            }
+
+            response = requests.post(url, data=data, files=files)
+
+        return response.json()
+
     def send_message(self, chat_id, text):
         url = self.TELEGRAM_API_URL + "sendMessage"
         payload = {
@@ -95,6 +138,7 @@ class TelegramService:
             "text": text
         }
         requests.post(url, json=payload)
+
 
     def send_language_options(self, chat_id):
         """Send language options to the user."""
