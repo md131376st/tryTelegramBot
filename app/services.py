@@ -217,7 +217,7 @@ class WhatsAppService:
             "lang": language,
             "question": question
         }
-        print(payload)
+
         try:
             response = requests.post(self.MORSEVERSE_TEXT_API_URL, json=payload)
             if response.status_code == 200:

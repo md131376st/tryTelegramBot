@@ -105,6 +105,7 @@ async def handle_whatsapp_message(data):
             logging.info(f"Received text message from {from_number}: {message_body}")
             # Send text to Morseverse and get response
             morseverse_response = whatsapp_service.send_text_to_morseverse(user_id, message_body)
+            print(morseverse_response)
             if morseverse_response is None:
                 response_message = "Server Error, please try again."
             else:
