@@ -25,6 +25,8 @@ def telegram_user_id_to_object_id(user_id):
     # Truncate or pad the string to ensure it's 24 characters long
     hex_dig = hex_dig[:24]  # Truncate to 24 characters
 
+    # Convert the 24-character hex string to an ObjectId
+
     return hex_dig
 async def handle_telegram_message(data):
     try:
