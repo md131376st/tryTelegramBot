@@ -186,8 +186,8 @@ class WhatsAppService:
         print(url)
         payload = {
             "Body": message_body,
-            "From": f"whatsapp:{self.TWILIO_WHATSAPP_NUMBER}",
-            "To": f"whatsapp:{to_number}"
+            "From": f"{self.TWILIO_WHATSAPP_NUMBER}",
+            "To": f"{to_number}"
         }
         print(payload)
 
