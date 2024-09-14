@@ -99,7 +99,6 @@ async def handle_whatsapp_message(data):
         message_body = data.get("Body")
         num_media = int(data.get("NumMedia", "0"))
         user_id = telegram_user_id_to_object_id(from_number)  # Use the sender's number as the user ID
-        print(user_id)
         # Handle text messages from WhatsApp
         if message_body and num_media == 0:
             logging.info(f"Received text message from {from_number}: {message_body}")
