@@ -26,7 +26,7 @@ def telegram_user_id_to_object_id(user_id):
     # Use the first 12 bytes (24 hex characters) to create an ObjectId
     object_id = ObjectId(hash_digest[:12])
 
-    return object_id
+    return str(object_id)
     # Convert the 24-character hex string to an ObjectId
 
 
