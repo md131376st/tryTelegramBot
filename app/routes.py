@@ -1,6 +1,8 @@
 # app.py
 
 import logging
+
+from bson import ObjectId
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
 from .services import TelegramService
@@ -19,14 +21,15 @@ def telegram_user_id_to_object_id(user_id):
     user_id_str = str(user_id).encode('utf-8')
 
     # Create a SHA-256 hash of the user_id
-    hash_digest = hashlib.sha256(user_id_str).digest()
+    hash_digest = hashlib.sha256(user_id_str).digest()  # 32 bytes
 
-    # Truncate or pad the string to ensure it's 24 characters long
-    hex_dig = hash_digest[:24]  # Truncate to 24 characters
+    # Use the first 12 bytes (24 hex characters) to create an ObjectId
+    object_id = ObjectId(hash_digest[:12])
 
+    return object_id
     # Convert the 24-character hex string to an ObjectId
 
-    return hex_dig
+
 async def handle_telegram_message(data):
     try:
         if "message" in data:
