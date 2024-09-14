@@ -8,7 +8,9 @@ load_dotenv()
 class Config:
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     COMPANY_ID: str = os.getenv("COMPANY_ID", "")
-
+    TWILIO_ACCOUNT_SID: str = os.getenv("TWILIO_ACCOUNT_SID", "")
+    TWILIO_AUTH_TOKEN: str = os.getenv("TWILIO_AUTH_TOKEN", "")
+    TWILIO_WHATSAPP_NUMBER: str = os.getenv("TWILIO_WHATSAPP_NUMBER", "")
     # Base domain for the Morseverse API
     MORSEVERSE_BASE_URL: str = os.getenv("MORSEVERSE_BASE_URL", "https://morseverse.com/api/v1")
 
