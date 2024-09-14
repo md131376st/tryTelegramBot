@@ -133,14 +133,14 @@ async def telegram_webhook(request: Request):
         print(f"An error occurred: {e}")
 
         # Send an error message to the user
-        if "message" in data:
-            chat_id = data["message"]["chat"]["id"]
-            telegram_service.send_message(chat_id,
-                                          "An error occurred while processing your request. Please try again later.")
-        elif "callback_query" in data:
-            chat_id = data["callback_query"]["message"]["chat"]["id"]
-            telegram_service.send_message(chat_id,
-                                          "An error occurred while processing your request. Please try again later.")
+        # if "message" in data:
+        #     chat_id = data["message"]["chat"]["id"]
+        #     telegram_service.send_message(chat_id,
+        #                                   "An error occurred while processing your request. Please try again later.")
+        # elif "callback_query" in data:
+        #     chat_id = data["callback_query"]["message"]["chat"]["id"]
+        #     telegram_service.send_message(chat_id,
+        #                                   "An error occurred while processing your request. Please try again later.")
 
         return {"status": "error", "message": str(e)}
 
