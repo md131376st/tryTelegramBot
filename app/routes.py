@@ -17,14 +17,14 @@ whatsapp_service = WhatsAppService()
 logging.basicConfig(level=logging.INFO)
 
 def telegram_user_id_to_object_id(user_id):
-    # Convert the Telegram user_id (integer) to a string
+    # Convert the Telegram user_id (integer) to a string and encode it
     user_id_str = str(user_id).encode('utf-8')
 
-    # Create a SHA-256 hash of the user_id
-    hash_digest = hashlib.sha256(user_id_str).digest()  # 32 bytes
+    # Create a SHA-256 hash of the user_id and get the hexadecimal digest
+    hash_hex = hashlib.sha256(user_id_str).hexdigest()  # 64-character hex string
 
-    # Use the first 12 bytes (24 hex characters) to create an ObjectId
-    object_id = ObjectId(hash_digest[:12])
+    # Use the first 24 characters to create an ObjectId
+    object_id = ObjectId(hash_hex[:24])
 
     return str(object_id)
     # Convert the 24-character hex string to an ObjectId
