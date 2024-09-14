@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 from .services import TelegramService
 from .services import WhatsAppService
 import hashlib
-from bson import ObjectId
+
 
 app = FastAPI()
 telegram_service = TelegramService()
@@ -16,18 +16,17 @@ logging.basicConfig(level=logging.INFO)
 
 def telegram_user_id_to_object_id(user_id):
     # Convert the Telegram user_id (integer) to a string
-    user_id_bytes = str(user_id).encode('utf-8')
+    user_id_str = str(user_id).encode('utf-8')
 
-    # Hash the user_id to get a consistent byte sequence
-    hash_digest = hashlib.md5(user_id_bytes).digest()  # MD5 produces a 16-byte hash
+    # Create a SHA-256 hash of the user_id
+    hash_digest = hashlib.sha256(user_id_str).digest()
 
-    # Use the first 12 bytes to create an ObjectId
-    object_id_bytes = hash_digest[:12]  # Ensure it's 12 bytes
+    # Truncate or pad the string to ensure it's 24 characters long
+    hex_dig = hash_digest[:24]  # Truncate to 24 characters
 
-    # Create an ObjectId using the 12-byte input
-    object_id = ObjectId(object_id_bytes)
+    # Convert the 24-character hex string to an ObjectId
 
-    return object_id
+    return hex_dig
 async def handle_telegram_message(data):
     try:
         if "message" in data:
