@@ -211,6 +211,7 @@ class WhatsAppService:
     def send_text_to_morseverse(self, user_id, question):
         """Send text question to Morseverse API."""
         language = self.get_user_language(user_id)
+        print(self.COMPANY_ID)
         payload = {
             "companyId": self.COMPANY_ID,
             "userId": user_id,
@@ -222,62 +223,73 @@ class WhatsAppService:
         try:
             response = requests.post(self.MORSEVERSE_TEXT_API_URL, json=payload)
             if response.status_code == 200:
-                return response.json()
+                try:
+                    return response.json()  # Attempt to parse the JSON response
+                except ValueError:
+                    # Handle cases where the response is not JSON
+                    return {"error": "Invalid JSON response from Morseverse API"}
             else:
+                # Handle HTTP errors
                 return {"error": f"HTTP error {response.status_code}: {response.text}"}
         except requests.exceptions.RequestException as e:
+            # Handle any request-related errors (e.g., network issues)
             return {"error": f"Request failed: {str(e)}"}
 
-    def send_voice_to_morseverse(self, user_id, wav_file_path):
-        """Send voice data to Morseverse API."""
-        language = self.get_user_language(user_id)
-        with open(wav_file_path, 'rb') as wav_file:
-            wav_data = wav_file.read()
-        import base64
-        wav_data_base64 = base64.b64encode(wav_data).decode('utf-8')
+
+def send_voice_to_morseverse(self, user_id, wav_file_path):
+    """Send voice data to Morseverse API."""
+    language = self.get_user_language(user_id)
+    with open(wav_file_path, 'rb') as wav_file:
+        wav_data = wav_file.read()
+    import base64
+    wav_data_base64 = base64.b64encode(wav_data).decode('utf-8')
+    payload = {
+        "companyId": self.COMPANY_ID,
+        "userId": user_id,
+        "lang": language,
+        "wavData": wav_data_base64
+    }
+
+    response = requests.post(self.MORSEVERSE_VOICE_API_URL, json=payload)
+    return response.json()
+
+
+def send_voice_answer_to_user(self, to_number, morseverse_response):
+    """Send the voice response back to the user."""
+    voice_answer_text = morseverse_response.get("voice_answer", "Please try again.")
+    response = requests.post(self.MORSEVERSE_VOICE_AI, json={"text": voice_answer_text})
+
+    if response.status_code == 200:
+        wav_data = response.content
+        wav_file_path = "response.wav"
+        with open(wav_file_path, 'wb') as f:
+            f.write(wav_data)
+        ogg_file_path = wav_file_path.replace('.wav', '.ogg')
+        self.convert_wav_to_ogg(wav_file_path, ogg_file_path)
+        self.send_voice(to_number, ogg_file_path)
+        os.remove(ogg_file_path)
+
+
+def convert_wav_to_ogg(self, wav_file_path, output_ogg_path):
+    """Convert WAV file to OGG format."""
+    subprocess.run(['ffmpeg', '-i', wav_file_path, '-c:a', 'libopus', output_ogg_path], check=True)
+
+
+def send_voice(self, to_number, ogg_file_path):
+    """Send a voice message via Twilio WhatsApp API."""
+    url = f"{self.TWILIO_API_URL}/{self.TWILIO_ACCOUNT_SID}/Messages.json"
+    with open(ogg_file_path, 'rb') as voice_file:
+        files = {'Media': voice_file}
         payload = {
-            "companyId": self.COMPANY_ID,
-            "userId": user_id,
-            "lang": language,
-            "wavData": wav_data_base64
+            "From": f"whatsapp:{self.TWILIO_WHATSAPP_NUMBER}",
+            "To": f"whatsapp:{to_number}"
         }
+        response = requests.post(url, data=payload, files=files,
+                                 auth=(self.TWILIO_ACCOUNT_SID, self.TWILIO_AUTH_TOKEN))
+    return response.json()
 
-        response = requests.post(self.MORSEVERSE_VOICE_API_URL, json=payload)
-        return response.json()
 
-    def send_voice_answer_to_user(self, to_number, morseverse_response):
-        """Send the voice response back to the user."""
-        voice_answer_text = morseverse_response.get("voice_answer", "Please try again.")
-        response = requests.post(self.MORSEVERSE_VOICE_AI, json={"text": voice_answer_text})
-
-        if response.status_code == 200:
-            wav_data = response.content
-            wav_file_path = "response.wav"
-            with open(wav_file_path, 'wb') as f:
-                f.write(wav_data)
-            ogg_file_path = wav_file_path.replace('.wav', '.ogg')
-            self.convert_wav_to_ogg(wav_file_path, ogg_file_path)
-            self.send_voice(to_number, ogg_file_path)
-            os.remove(ogg_file_path)
-
-    def convert_wav_to_ogg(self, wav_file_path, output_ogg_path):
-        """Convert WAV file to OGG format."""
-        subprocess.run(['ffmpeg', '-i', wav_file_path, '-c:a', 'libopus', output_ogg_path], check=True)
-
-    def send_voice(self, to_number, ogg_file_path):
-        """Send a voice message via Twilio WhatsApp API."""
-        url = f"{self.TWILIO_API_URL}/{self.TWILIO_ACCOUNT_SID}/Messages.json"
-        with open(ogg_file_path, 'rb') as voice_file:
-            files = {'Media': voice_file}
-            payload = {
-                "From": f"whatsapp:{self.TWILIO_WHATSAPP_NUMBER}",
-                "To": f"whatsapp:{to_number}"
-            }
-            response = requests.post(url, data=payload, files=files,
-                                     auth=(self.TWILIO_ACCOUNT_SID, self.TWILIO_AUTH_TOKEN))
-        return response.json()
-
-    def send_language_options(self, to_number):
-        """Send language options to the user."""
-        message_body = "Please select your language:\n1. Italian\n2. English"
-        self.send_message(to_number, message_body)
+def send_language_options(self, to_number):
+    """Send language options to the user."""
+    message_body = "Please select your language:\n1. Italian\n2. English"
+    self.send_message(to_number, message_body)
