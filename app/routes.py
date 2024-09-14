@@ -3,8 +3,8 @@
 import logging
 from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
-from services import TelegramService
-from services import WhatsAppService
+from .services import TelegramService
+from .services import WhatsAppService
 import hashlib
 
 
