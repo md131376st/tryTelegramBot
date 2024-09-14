@@ -183,11 +183,14 @@ class WhatsAppService:
     def send_message(self, to_number, message_body):
         """Send a message via Twilio WhatsApp API."""
         url = f"{self.TWILIO_API_URL}/{self.TWILIO_ACCOUNT_SID}/Messages.json"
+        print(url)
         payload = {
             "Body": message_body,
             "From": f"whatsapp:{self.TWILIO_WHATSAPP_NUMBER}",
             "To": f"whatsapp:{to_number}"
         }
+        print(payload)
+
         auth = (self.TWILIO_ACCOUNT_SID, self.TWILIO_AUTH_TOKEN)
         response = requests.post(url, data=payload, auth=auth)
         return response.json()
@@ -211,14 +214,14 @@ class WhatsAppService:
     def send_text_to_morseverse(self, user_id, question):
         """Send text question to Morseverse API."""
         language = self.get_user_language(user_id)
-        print(self.COMPANY_ID)
+        # print(self.COMPANY_ID)
         payload = {
             "companyId": self.COMPANY_ID,
             "userId": user_id,
             "lang": language,
             "question": question
         }
-        print(payload)
+        # print(payload)
 
         try:
             response = requests.post(self.MORSEVERSE_TEXT_API_URL, json=payload)

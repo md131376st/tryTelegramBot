@@ -114,6 +114,7 @@ async def handle_whatsapp_message(data):
             else:
                 response_message = morseverse_response.get("answer", "Sorry, there was an error processing your message.")
             # Send response back to the user
+            print(from_number)
             whatsapp_service.send_message(from_number, response_message)
 
         # Handle media messages (e.g., voice messages)
